@@ -1,6 +1,7 @@
 import os
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
+from typing import Optional
 import google.generativeai as genai
 
 app = FastAPI()
@@ -47,19 +48,19 @@ HTML_TEMPLATE = """
                     <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2.5">Select Subject</label>
                     <div class="grid grid-cols-4 gap-2">
                         <label class="cursor-pointer text-center">
-                            <input type="radio" name="subject" value="Maths" CHOSEN_MATHS class="hidden" onchange="this.form.submit()">
+                            <input type="radio" name="subject" value="Maths" CHOSEN_MATHS class="hidden">
                             <span class="block py-2 text-xs rounded-xl font-bold transition border border-transparent CLASS_MATHS">MATHS</span>
                         </label>
                         <label class="cursor-pointer text-center">
-                            <input type="radio" name="subject" value="Reasoning" CHOSEN_REASONING class="hidden" onchange="this.form.submit()">
+                            <input type="radio" name="subject" value="Reasoning" CHOSEN_REASONING class="hidden">
                             <span class="block py-2 text-xs rounded-xl font-bold transition border border-transparent CLASS_REASONING">REASONING</span>
                         </label>
                         <label class="cursor-pointer text-center">
-                            <input type="radio" name="subject" value="Science" CHOSEN_SCIENCE class="hidden" onchange="this.form.submit()">
+                            <input type="radio" name="subject" value="Science" CHOSEN_SCIENCE class="hidden">
                             <span class="block py-2 text-xs rounded-xl font-bold transition border border-transparent CLASS_SCIENCE">SCIENCE</span>
                         </label>
                         <label class="cursor-pointer text-center">
-                            <input type="radio" name="subject" value="GK / GS" CHOSEN_GK class="hidden" onchange="this.form.submit()">
+                            <input type="radio" name="subject" value="GK / GS" CHOSEN_GK class="hidden">
                             <span class="block py-2 text-xs rounded-xl font-bold transition border border-transparent CLASS_GK">GK / GS</span>
                         </label>
                     </div>
@@ -149,7 +150,10 @@ async def home():
     return get_response()
 
 @app.post("/", response_class=HTMLResponse)
-async def solve(question: str = Form(...), subject: str = Form("Maths")):
+async def solve(question: Optional[str] = Form(None), subject: str = Form("Maths")):
+    if not question:
+        return get_response("", "", subject)
+        
     if not api_key:
         return get_response(question, "Error: GEMINI_API_KEY set nahi hai.", subject)
     
