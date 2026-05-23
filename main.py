@@ -114,15 +114,25 @@ def get_response(question="", solution="", subject="Maths"):
     active_style = "bg-blue-600 text-white shadow-lg shadow-blue-500/10 border-blue-500"
     inactive_style = "bg-slate-900 text-slate-400 border-slate-800/80 hover:bg-slate-800/50"
     
-    html = html.replace("CLASS_MATHS", active_style if subject == "Maths" else inactive_style)
-    html = html.replace("CLASS_REASONING", active_style if subject == "Reasoning" else inactive_style)
-    html = html.replace("CLASS_SCIENCE", active_style if subject == "Science" else inactive_style)
-    html = html.replace("CLASS_GK", active_style if subject == "GK / GS" else inactive_style)
-    
-    html = html.replace("CHOSEN_MATHS", "checked" if subject == "Maths" else "")
-    html = html.replace("CHOSEN_REASONING", "checked" if subject == "Reasoning" else "")
-    html = html.replace("CHOSEN_SCIENCE", "checked" if subject == "Science" else "")
-    html = html.replace("CHOSEN_GK", "checked" if subject == "GK / GS" else "")
+    if subject == "Maths":
+        html = html.replace("CLASS_MATHS", active_style).replace("CHOSEN_MATHS", "checked")
+    else:
+        html = html.replace("CLASS_MATHS", inactive_style).replace("CHOSEN_MATHS", "")
+        
+    if subject == "Reasoning":
+        html = html.replace("CLASS_REASONING", active_style).replace("CHOSEN_REASONING", "checked")
+    else:
+        html = html.replace("CLASS_REASONING", inactive_style).replace("CHOSEN_REASONING", "")
+        
+    if subject == "Science":
+        html = html.replace("CLASS_SCIENCE", active_style).replace("CHOSEN_SCIENCE", "checked")
+    else:
+        html = html.replace("CLASS_SCIENCE", inactive_style).replace("CHOSEN_SCIENCE", "")
+        
+    if subject == "GK / GS":
+        html = html.replace("CLASS_GK", active_style).replace("CHOSEN_GK", "checked")
+    else:
+        html = html.replace("CLASS_GK", inactive_style).replace("CHOSEN_GK", "")
     
     html = html.replace("VAL_QUESTION", question)
     
@@ -145,32 +155,10 @@ async def solve(question: str = Form(...), subject: str = Form("Maths")):
     
     try:
         model = genai.GenerativeModel('gemini-1.5-flash')
-        prompt = f"""
-        You are NAYAK AI UNIVERSAL SOLVER, an expert exam tutor for Indian government competitive exams.
-        Solve the following question with premium step-by-step formatting in Hinglish.
-        
-        Format beautifully like this:
-        <div class="p-4 bg-blue-950/30 border border-blue-500/20 rounded-xl mb-3">
-            <span class="text-xs font-bold text-blue-400 uppercase tracking-wider block mb-1">STEP 1: IDENTIFIERS & CONCEPT</span>
-            (Concept details)
-        </div>
-        
-        <div class="p-4 bg-slate-900/60 border border-slate-800 rounded-xl mb-3">
-            <span class="text-xs font-bold text-purple-400 uppercase tracking-wider block mb-1">STEP 2: CALCULATIONS & SOLUTION STEPS</span>
-            (Calculations details)
-        </div>
-        
-        <div class="p-4 bg-emerald-950/30 border border-emerald-500/20 rounded-xl">
-            <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider block mb-1">✨ FINAL VERIFIED ANSWER</span>
-            <strong>(Final Answer)</strong>
-        </div>
-        
-        Question: {question}
-        Subject: {subject}
-        """
+        prompt = "Subject: " + subject + "\\nQuestion: " + question + "\\n\\nSolve this step-by-step beautifully in Hinglish for an exam student."
         response = model.generate_content(prompt)
         solution = response.text
     except Exception as e:
-        solution = f"Error: {str(e)}"
+        solution = "Error: " + str(e)
         
     return get_response(question, solution, subject)
