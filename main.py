@@ -11,7 +11,7 @@ async def home():
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Nayak AI | Cloud Dashboard</title>
+        <title>Nayak AI | Control Dashboard</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     </head>
@@ -26,7 +26,7 @@ async def home():
             </div>
             <div class="flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 rounded-full">
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                <span class="text-xs font-semibold text-emerald-400 tracking-wide uppercase">Server Live</span>
+                <span class="text-xs font-semibold text-emerald-400 tracking-wide uppercase">System Live</span>
             </div>
         </header>
 
@@ -36,7 +36,7 @@ async def home():
                     Welcome to <span class="bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 bg-clip-text text-transparent">Nayak AI Control Center</span>
                 </h1>
                 <p class="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto font-light">
-                    Aapka personal Gemini AI backend cloud par kamyabi se deploy ho chuka hai aur dhoom machane ke liye taiyar hai!
+                    Aapka advance AI backend cloud par kamyabi se deploy ho chuka hai aur dhoom machane ke liye taiyar hai!
                 </p>
             </div>
 
@@ -44,12 +44,12 @@ async def home():
                 <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl text-left hover:border-cyan-500/40 transition duration-300 backdrop-blur-sm group">
                     <div class="text-cyan-400 text-2xl mb-3 group-hover:scale-110 transition duration-300"><i class="fas fa-server"></i></div>
                     <h3 class="font-bold text-slate-200 text-base">Host Platform</h3>
-                    <p class="text-slate-400 text-sm mt-1">Render Cloud (Docker Container)</p>
+                    <p class="text-slate-400 text-sm mt-1">Render Cloud (Secure Container)</p>
                 </div>
                 <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl text-left hover:border-blue-500/40 transition duration-300 backdrop-blur-sm group">
                     <div class="text-blue-400 text-2xl mb-3 group-hover:scale-110 transition duration-300"><i class="fas fa-microchip"></i></div>
                     <h3 class="font-bold text-slate-200 text-base">Core Engine</h3>
-                    <p class="text-slate-400 text-sm mt-1">FastAPI + Google Gemini API</p>
+                    <p class="text-slate-400 text-sm mt-1">FastAPI + Nayak Core v1.0</p>
                 </div>
                 <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl text-left hover:border-indigo-500/40 transition duration-300 backdrop-blur-sm group">
                     <div class="text-indigo-400 text-2xl mb-3 group-hover:scale-110 transition duration-300"><i class="fas fa-code-branch"></i></div>
