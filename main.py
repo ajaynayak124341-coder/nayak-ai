@@ -40,7 +40,7 @@ HTML_TEMPLATE = """
         </div>
 
         <div class="bg-[#111827]/60 border border-slate-800/80 backdrop-blur-xl p-5 rounded-2xl shadow-2xl">
-            <form method="POST" action="/" class="space-y-5">
+            <form method="POST" action="/solve" class="space-y-5">
                 
                 <div>
                     <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2.5">Select Subject</label>
@@ -144,17 +144,17 @@ def get_response(question="", solution="", subject="Maths"):
 
 @app.get("/", response_class=HTMLResponse)
 async def home():
-    return get_response()
+    return get_response(question="", solution="", subject="Maths")
 
-@app.post("/", response_class=HTMLResponse)
-async def solve(question: Optional[str] = Form(None), subject: str = Form("Maths")):
+@app.post("/solve", response_class=HTMLResponse)
+async def solve(question: str = Form(...), subject: str = Form("Maths")):
     if not question:
         return get_response("", "", subject)
         
     if not api_key:
         return get_response(question, "Error: Environment variables mein GEMINI_API_KEY set nahi mila.", subject)
     
-    # Direct API request config without using the buggy library
+    # Fast HTTP Request URL
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
     headers = {"Content-Type": "application/json"}
     
@@ -167,7 +167,7 @@ async def solve(question: Optional[str] = Form(None), subject: str = Form("Maths
     }
     
     try:
-        response = requests.post(url, headers=headers, json=payload)
+        response = requests.post(url, headers=headers, json=payload, timeout=10)
         if response.status_code == 200:
             data = response.json()
             solution = data['candidates'][0]['content']['parts'][0]['text']
