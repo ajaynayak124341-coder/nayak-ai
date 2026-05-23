@@ -138,7 +138,7 @@ def get_response(question="", solution="", subject="Maths"):
     html = html.replace("VAL_QUESTION", question)
     
     if solution:
-        sol_html = SOLUTION_TEMPLATE.replace("VAL_Q", question).replace("VAL_ANS", solution.replace("\\n", "<br>"))
+        sol_html = SOLUTION_TEMPLATE.replace("VAL_Q", question).replace("VAL_ANS", solution.replace("\n", "<br>"))
         html = html.replace("VAL_SOLUTION_HTML", sol_html)
     else:
         html = html.replace("VAL_SOLUTION_HTML", "")
@@ -158,12 +158,12 @@ async def solve(question: Optional[str] = Form(None), subject: str = Form("Maths
         return get_response(question, "Error: GEMINI_API_KEY set nahi hai.", subject)
     
     try:
-        # Fixed Model Line: explicitly giving full models directory mapping
-        model = genai.GenerativeModel('models/gemini-1.5-flash')
-        prompt = "Subject: " + subject + "\\nQuestion: " + question + "\\n\\nSolve this step-by-step beautifully in Hinglish for an exam student."
+        # Hum direct GenerativeModel use karenge bina kisi custom path ke jo standard format hai
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        prompt = f"Subject: {subject}\nQuestion: {question}\n\nSolve this question step-by-step completely in beautiful Hinglish format for an SSC GD student. Explain clearly."
         response = model.generate_content(prompt)
         solution = response.text
     except Exception as e:
-        solution = "Error: " + str(e)
+        solution = f"Error: {str(e)}"
         
     return get_response(question, solution, subject)
