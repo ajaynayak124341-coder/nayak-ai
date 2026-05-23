@@ -102,7 +102,7 @@ SOLUTION_TEMPLATE = """
             <i class="fa-solid fa-layer-group text-blue-400"></i> Step-by-Step Breakdown:
         </h3>
         
-        <div class="text-slate-200 text-sm leading-relaxed space-y-4">
+        <div class="text-slate-200 text-sm leading-relaxed space-y-4 whitespace-pre-line">
             VAL_ANS
         </div>
     </div>
@@ -138,7 +138,7 @@ def get_response(question="", solution="", subject="Maths"):
     html = html.replace("VAL_QUESTION", question)
     
     if solution:
-        sol_html = SOLUTION_TEMPLATE.replace("VAL_Q", question).replace("VAL_ANS", solution.replace("\n", "<br>"))
+        sol_html = SOLUTION_TEMPLATE.replace("VAL_Q", question).replace("VAL_ANS", solution)
         html = html.replace("VAL_SOLUTION_HTML", sol_html)
     else:
         html = html.replace("VAL_SOLUTION_HTML", "")
@@ -155,15 +155,15 @@ async def solve(question: Optional[str] = Form(None), subject: str = Form("Maths
         return get_response("", "", subject)
         
     if not api_key:
-        return get_response(question, "Error: GEMINI_API_KEY set nahi hai.", subject)
+        return get_response(question, "Error: Environment variables mein GEMINI_API_KEY set nahi mili.", subject)
     
     try:
-        # Hum direct GenerativeModel use karenge bina kisi custom path ke jo standard format hai
+        # Standard stable architecture call format
         model = genai.GenerativeModel('gemini-1.5-flash')
-        prompt = f"Subject: {subject}\nQuestion: {question}\n\nSolve this question step-by-step completely in beautiful Hinglish format for an SSC GD student. Explain clearly."
+        prompt = f"Subject: {subject}\nQuestion: {question}\n\nSolve this competitive exam question step-by-step in clear, easy Hinglish for an SSC GD/Government exam aspirant. Show final answers clearly."
         response = model.generate_content(prompt)
         solution = response.text
     except Exception as e:
-        solution = f"Error: {str(e)}"
+        solution = f"Kuch dikkat aayi backend me: {str(e)}"
         
     return get_response(question, solution, subject)
