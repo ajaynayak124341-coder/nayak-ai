@@ -137,7 +137,7 @@ def get_response(question="", solution="", subject="Maths"):
     html = html.replace("VAL_QUESTION", question)
     
     if solution:
-        sol_html = SOLUTION_TEMPLATE.replace("VAL_Q", question).replace("VAL_ANS", solution.replace("\n", "<br>"))
+        sol_html = SOLUTION_TEMPLATE.replace("VAL_Q", question).replace("VAL_ANS", solution.replace("\\n", "<br>"))
         html = html.replace("VAL_SOLUTION_HTML", sol_html)
     else:
         html = html.replace("VAL_SOLUTION_HTML", "")
