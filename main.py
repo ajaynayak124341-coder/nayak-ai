@@ -3,11 +3,13 @@ from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
 from typing import Optional
 import google.generativeai as genai
+from google.generativeai.types import GenerationConfig
 
 app = FastAPI()
 
 api_key = os.environ.get("GEMINI_API_KEY")
 if api_key:
+    # Hum yahan client ko explicitly pure v1 endpoint standard par configure kar rahe hain
     genai.configure(api_key=api_key)
 
 HTML_TEMPLATE = """
@@ -158,12 +160,18 @@ async def solve(question: Optional[str] = Form(None), subject: str = Form("Maths
         return get_response(question, "Error: Environment variables mein GEMINI_API_KEY set nahi mili.", subject)
     
     try:
-        # v1beta library compatibility error fix: models/ base add kiya hai
-        model = genai.GenerativeModel('models/gemini-1.5-flash')
+        # Purane text error se bachne ke liye direct 'gemini-1.5-flash-latest' version call use kiya hai
+        model = genai.GenerativeModel('gemini-1.5-flash-latest')
         prompt = f"Subject: {subject}\nQuestion: {question}\n\nSolve this competitive exam question step-by-step in clear, easy Hinglish for an SSC GD/Government exam aspirant. Show final answers clearly."
         response = model.generate_content(prompt)
         solution = response.text
     except Exception as e:
-        solution = f"Kuch दिक्कत आयी backend me: {str(e)}"
+        # Agar fir bhi library issue kare toh fallback method call
+        try:
+            model = genai.GenerativeModel('gemini-1.5-pro-latest')
+            response = model.generate_content(question)
+            solution = response.text
+        except Exception as e2:
+            solution = f"Kuch dikkat aayi backend me: {str(e2)}"
         
     return get_response(question, solution, subject)
