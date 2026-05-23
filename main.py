@@ -154,8 +154,8 @@ async def solve(question: str = Form(...), subject: str = Form("Maths")):
     if not api_key:
         return get_response(question, "Error: Environment variables mein GEMINI_API_KEY set nahi mila.", subject)
     
-    # Fast HTTP Request URL
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    # Stable v1 Endpoint with explicit gemini-1.5-flash setup
+    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
     headers = {"Content-Type": "application/json"}
     
     prompt = f"Subject: {subject}\nQuestion: {question}\n\nSolve this competitive exam question step-by-step in clear, easy Hinglish for an SSC GD/Government exam aspirant. Show final answers clearly."
@@ -167,13 +167,13 @@ async def solve(question: str = Form(...), subject: str = Form("Maths")):
     }
     
     try:
-        response = requests.post(url, headers=headers, json=payload, timeout=10)
+        response = requests.post(url, headers=headers, json=payload, timeout=15)
         if response.status_code == 200:
             data = response.json()
             solution = data['candidates'][0]['content']['parts'][0]['text']
         else:
-            solution = f"API Error (Status {response.status_code}): {response.text}"
+            solution = f"API Setup Error (Status {response.status_code}): {response.text}"
     except Exception as e:
-        solution = f"Backend Execution Error: {str(e)}"
+        solution = f"Backend Connection Error: {str(e)}"
         
     return get_response(question, solution, subject)
