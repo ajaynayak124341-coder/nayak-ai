@@ -158,12 +158,12 @@ async def solve(question: Optional[str] = Form(None), subject: str = Form("Maths
         return get_response(question, "Error: Environment variables mein GEMINI_API_KEY set nahi mili.", subject)
     
     try:
-        # Standard stable architecture call format
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        # v1beta library compatibility error fix: models/ base add kiya hai
+        model = genai.GenerativeModel('models/gemini-1.5-flash')
         prompt = f"Subject: {subject}\nQuestion: {question}\n\nSolve this competitive exam question step-by-step in clear, easy Hinglish for an SSC GD/Government exam aspirant. Show final answers clearly."
         response = model.generate_content(prompt)
         solution = response.text
     except Exception as e:
-        solution = f"Kuch dikkat aayi backend me: {str(e)}"
+        solution = f"Kuch दिक्कत आयी backend me: {str(e)}"
         
     return get_response(question, solution, subject)
