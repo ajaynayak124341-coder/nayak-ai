@@ -1,12 +1,14 @@
 import os
-import requests
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
-from typing import Optional
+import google.generativeai as genai
 
 app = FastAPI()
 
+# API Key initialization
 api_key = os.environ.get("GEMINI_API_KEY")
+if api_key:
+    genai.configure(api_key=api_key)
 
 HTML_TEMPLATE = """
 <!DOCTYPE html>
@@ -152,28 +154,16 @@ async def solve(question: str = Form(...), subject: str = Form("Maths")):
         return get_response("", "", subject)
         
     if not api_key:
-        return get_response(question, "Error: Environment variables mein GEMINI_API_KEY set nahi mila.", subject)
-    
-    # Stable v1 Endpoint with explicit gemini-1.5-flash setup
-    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
-    headers = {"Content-Type": "application/json"}
+        return get_response(question, "Kuch dikkat aayi backend me: Environment variable me GEMINI_API_KEY nahi mila.", subject)
     
     prompt = f"Subject: {subject}\nQuestion: {question}\n\nSolve this competitive exam question step-by-step in clear, easy Hinglish for an SSC GD/Government exam aspirant. Show final answers clearly."
     
-    payload = {
-        "contents": [{
-            "parts": [{"text": prompt}]
-        }]
-    }
-    
     try:
-        response = requests.post(url, headers=headers, json=payload, timeout=15)
-        if response.status_code == 200:
-            data = response.json()
-            solution = data['candidates'][0]['content']['parts'][0]['text']
-        else:
-            solution = f"API Setup Error (Status {response.status_code}): {response.text}"
+        # Using standard official gemini-1.5-flash model
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        response = model.generate_content(prompt)
+        solution = response.text
     except Exception as e:
-        solution = f"Backend Connection Error: {str(e)}"
+        solution = f"Kuch दिक्कत आई backend me: {str(e)}"
         
     return get_response(question, solution, subject)
