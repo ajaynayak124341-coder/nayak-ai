@@ -1,16 +1,12 @@
 import os
+import requests
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
 from typing import Optional
-import google.generativeai as genai
-from google.generativeai.types import GenerationConfig
 
 app = FastAPI()
 
 api_key = os.environ.get("GEMINI_API_KEY")
-if api_key:
-    # Hum yahan client ko explicitly pure v1 endpoint standard par configure kar rahe hain
-    genai.configure(api_key=api_key)
 
 HTML_TEMPLATE = """
 <!DOCTYPE html>
@@ -113,7 +109,6 @@ SOLUTION_TEMPLATE = """
 
 def get_response(question="", solution="", subject="Maths"):
     html = HTML_TEMPLATE
-    
     active_style = "bg-blue-600 text-white shadow-lg shadow-blue-500/10 border-blue-500"
     inactive_style = "bg-slate-900 text-slate-400 border-slate-800/80 hover:bg-slate-800/50"
     
@@ -157,21 +152,28 @@ async def solve(question: Optional[str] = Form(None), subject: str = Form("Maths
         return get_response("", "", subject)
         
     if not api_key:
-        return get_response(question, "Error: Environment variables mein GEMINI_API_KEY set nahi mili.", subject)
+        return get_response(question, "Error: Environment variables mein GEMINI_API_KEY set nahi mila.", subject)
+    
+    # Direct API request config without using the buggy library
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    headers = {"Content-Type": "application/json"}
+    
+    prompt = f"Subject: {subject}\nQuestion: {question}\n\nSolve this competitive exam question step-by-step in clear, easy Hinglish for an SSC GD/Government exam aspirant. Show final answers clearly."
+    
+    payload = {
+        "contents": [{
+            "parts": [{"text": prompt}]
+        }]
+    }
     
     try:
-        # Purane text error se bachne ke liye direct 'gemini-1.5-flash-latest' version call use kiya hai
-        model = genai.GenerativeModel('gemini-1.5-flash-latest')
-        prompt = f"Subject: {subject}\nQuestion: {question}\n\nSolve this competitive exam question step-by-step in clear, easy Hinglish for an SSC GD/Government exam aspirant. Show final answers clearly."
-        response = model.generate_content(prompt)
-        solution = response.text
+        response = requests.post(url, headers=headers, json=payload)
+        if response.status_code == 200:
+            data = response.json()
+            solution = data['candidates'][0]['content']['parts'][0]['text']
+        else:
+            solution = f"API Error (Status {response.status_code}): {response.text}"
     except Exception as e:
-        # Agar fir bhi library issue kare toh fallback method call
-        try:
-            model = genai.GenerativeModel('gemini-1.5-pro-latest')
-            response = model.generate_content(question)
-            solution = response.text
-        except Exception as e2:
-            solution = f"Kuch dikkat aayi backend me: {str(e2)}"
+        solution = f"Backend Execution Error: {str(e)}"
         
     return get_response(question, solution, subject)
