@@ -158,7 +158,8 @@ async def solve(question: Optional[str] = Form(None), subject: str = Form("Maths
         return get_response(question, "Error: GEMINI_API_KEY set nahi hai.", subject)
     
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        # Fixed Model Line: explicitly giving full models directory mapping
+        model = genai.GenerativeModel('models/gemini-1.5-flash')
         prompt = "Subject: " + subject + "\\nQuestion: " + question + "\\n\\nSolve this step-by-step beautifully in Hinglish for an exam student."
         response = model.generate_content(prompt)
         solution = response.text
